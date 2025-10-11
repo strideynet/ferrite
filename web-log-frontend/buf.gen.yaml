@@ -1,0 +1,13 @@
+# buf.gen.yaml configures code generation
+version: v2
+plugins:
+  # Generate TypeScript types from proto files
+  - local: node_modules/@bufbuild/protoc-gen-es/bin/protoc-gen-es
+    out: src/gen
+    opt:
+      - target=ts
+  # Generate Connect client code
+  - local: node_modules/@connectrpc/protoc-gen-connect-es/bin/protoc-gen-connect-es
+    out: src/gen
+    opt:
+      - target=ts

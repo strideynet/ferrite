@@ -13,18 +13,40 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
-export function Login() {
+export function Signup() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<{ password?: string }>({})
 
-  const handleLocalLogin = async (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: { password?: string } = {}
+
+    if (password !== confirmPassword) {
+      newErrors.password = "Passwords don't match"
+    }
+
+    if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleLocalSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsLoading(true)
 
-    // TODO: Implement actual login logic
-    console.log('Local login:', { email, password })
+    // TODO: Implement actual signup logic
+    console.log('Local signup:', { email, password })
 
     // Simulate API call
     setTimeout(() => {
@@ -33,11 +55,11 @@ export function Login() {
     }, 1000)
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setIsLoading(true)
 
-    // TODO: Implement Google OAuth login
-    console.log('Google login initiated')
+    // TODO: Implement Google OAuth signup
+    console.log('Google signup initiated')
 
     // Simulate OAuth flow
     setTimeout(() => {
@@ -50,13 +72,13 @@ export function Login() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
+          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
           <CardDescription>
-            Enter your email and password to access your amateur radio log
+            Sign up to start logging your amateur radio contacts
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={handleLocalLogin} className="space-y-4">
+          <form onSubmit={handleLocalSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -74,15 +96,40 @@ export function Login() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Create a password (min. 8 characters)"
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setPassword(e.target.value)
+                  if (errors.password) {
+                    setErrors({})
+                  }
+                }}
                 required
                 disabled={isLoading}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setConfirmPassword(e.target.value)
+                  if (errors.password) {
+                    setErrors({})
+                  }
+                }}
+                required
+                disabled={isLoading}
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
+              )}
+            </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? 'Creating account...' : 'Sign up'}
             </Button>
           </form>
 
@@ -99,7 +146,7 @@ export function Login() {
             type="button"
             variant="outline"
             className="w-full"
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleSignup}
             disabled={isLoading}
           >
             <svg
@@ -119,12 +166,23 @@ export function Login() {
             </svg>
             Continue with Google
           </Button>
+
+          <p className="text-xs text-muted-foreground text-center">
+            By signing up, you agree to our{' '}
+            <Link to="/terms" className="underline underline-offset-4 hover:text-primary">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" className="underline underline-offset-4 hover:text-primary">
+              Privacy Policy
+            </Link>
+          </p>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-muted-foreground text-center">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary underline-offset-4 hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary underline-offset-4 hover:underline">
+              Sign in
             </Link>
           </div>
         </CardFooter>
