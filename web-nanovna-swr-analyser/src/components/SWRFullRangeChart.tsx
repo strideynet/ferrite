@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { SWRPoint, Band, AMATEUR_BANDS } from '../types';
-import { formatFrequency, getSWRQuality, swrToReturnLoss, swrToPowerReflected } from '../lib/swrCalculator';
+import { formatFrequency, getSWRQuality } from '../lib/swrCalculator';
 
 // Register ChartJS components
 ChartJS.register(
@@ -64,9 +64,40 @@ export const SWRFullRangeChart: React.FC<SWRFullRangeChartProps> = ({
     ? swrPoints.filter((_, index) => index % downsampleRate === 0)
     : swrPoints;
 
+  // Create band shading datasets for each present band
+  const bandShadingDatasets = presentBands.map(band => {
+    const chartMaxSWR = Math.min(10, Math.ceil(maxSWR + 1));
+
+    // Create data array with max value for points within this band
+    const bandData = displayPoints.map(point => {
+      if (point.frequency >= band.startFreq && point.frequency <= band.endFreq) {
+        return chartMaxSWR; // Fill to top of chart
+      }
+      return null;
+    });
+
+    return {
+      label: `${band.name} Band`,
+      data: bandData,
+      backgroundColor: band.color + '30', // More visible transparency (was 15)
+      borderColor: 'transparent',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: {
+        target: 'origin',
+        above: band.color + '30', // Increased opacity for better visibility
+      },
+      order: 3, // Draw behind everything
+      showLine: false,
+      spanGaps: false,
+      hidden: false,
+    };
+  });
+
   const chartData = {
     labels: displayPoints.map(point => formatFrequency(point.frequency)),
     datasets: [
+      ...bandShadingDatasets,
       {
         label: 'SWR',
         data: displayPoints.map(point => point.swr),
@@ -80,6 +111,7 @@ export const SWRFullRangeChart: React.FC<SWRFullRangeChartProps> = ({
         pointHoverBorderWidth: 2,
         borderWidth: 2,
         fill: false,
+        order: 1, // Draw on top
       },
     ],
   };
@@ -106,19 +138,24 @@ export const SWRFullRangeChart: React.FC<SWRFullRangeChartProps> = ({
       tooltip: {
         enabled: true,
         displayColors: false,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         titleColor: '#ffffff',
         bodyColor: '#ffffff',
         borderColor: '#3b82f6',
-        borderWidth: 2,
-        padding: 12,
-        cornerRadius: 6,
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 4,
         titleFont: {
-          size: 14,
-          weight: 'bold',
+          size: 13,
+          weight: 'normal',
         },
         bodyFont: {
           size: 13,
+          weight: 'bold',
+        },
+        filter: function(tooltipItem) {
+          // Only show tooltip for the SWR dataset (which has label 'SWR')
+          return tooltipItem.dataset.label === 'SWR';
         },
         callbacks: {
           title: (tooltipItems) => {
@@ -128,65 +165,10 @@ export const SWRFullRangeChart: React.FC<SWRFullRangeChartProps> = ({
           },
           label: (context) => {
             const swr = context.parsed.y;
-            const quality = getSWRQuality(swr);
-            const returnLoss = swrToReturnLoss(swr);
-            const powerReflected = swrToPowerReflected(swr);
-            const pointIndex = context.dataIndex * downsampleRate;
-            const actualPoint = swrPoints[Math.min(pointIndex, swrPoints.length - 1)];
-
-            // Check which band this point belongs to
-            const band = presentBands.find(b =>
-              actualPoint.frequency >= b.startFreq &&
-              actualPoint.frequency <= b.endFreq
-            );
-
-            const labels = [
-              `SWR: ${swr.toFixed(3)}:1`,
-              `Quality: ${quality.quality}`,
-              `Return Loss: ${returnLoss === Infinity ? '∞' : returnLoss.toFixed(1)} dB`,
-              `Power Reflected: ${powerReflected.toFixed(1)}%`,
-              `Power Transmitted: ${(100 - powerReflected).toFixed(1)}%`,
-            ];
-
-            if (band) {
-              labels.push(`Band: ${band.name}`);
-            }
-
-            return labels;
-          },
-          afterLabel: (context) => {
-            const swr = context.parsed.y;
-            const quality = getSWRQuality(swr);
-            return `\n${quality.description}`;
+            return `${swr.toFixed(2)}:1`;
           },
         },
       },
-      // Add custom plugin to draw band highlights
-      ...(showBandHighlights && {
-        annotation: {
-          annotations: presentBands.reduce((acc, band) => {
-            const bandStart = displayPoints.findIndex(p => p.frequency >= band.startFreq);
-            const bandEnd = displayPoints.findIndex(p => p.frequency > band.endFreq);
-
-            if (bandStart !== -1) {
-              acc[band.name] = {
-                type: 'box',
-                xMin: bandStart,
-                xMax: bandEnd === -1 ? displayPoints.length - 1 : bandEnd,
-                backgroundColor: band.color + '10', // Very transparent
-                borderColor: band.color,
-                borderWidth: 1,
-                label: {
-                  content: band.name,
-                  enabled: true,
-                  position: 'start',
-                },
-              };
-            }
-            return acc;
-          }, {} as any),
-        },
-      }),
     },
     scales: {
       x: {

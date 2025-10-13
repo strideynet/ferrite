@@ -10,6 +10,7 @@ export interface NanoVNASWRAnalyserProps {
   bands?: Band[];
   showAllBands?: boolean;
   showFullRange?: boolean;
+  showBandPlan?: boolean;
   chartHeight?: number;
   onDataLoaded?: (bandData: BandSWRData[]) => void;
   style?: React.CSSProperties;
@@ -19,6 +20,7 @@ export const NanoVNASWRAnalyser: React.FC<NanoVNASWRAnalyserProps> = ({
   bands = AMATEUR_BANDS,
   showAllBands = false,
   showFullRange = true,
+  showBandPlan = false,
   chartHeight = 300,
   onDataLoaded,
   style = {},
@@ -29,6 +31,7 @@ export const NanoVNASWRAnalyser: React.FC<NanoVNASWRAnalyserProps> = ({
   const [error, setError] = useState<string>('');
   const [selectedBands, setSelectedBands] = useState<Set<string>>(new Set());
   const [showFullRangeChart, setShowFullRangeChart] = useState<boolean>(showFullRange);
+  const [showBandPlanOverlay, setShowBandPlanOverlay] = useState<boolean>(showBandPlan);
 
   const handleFileLoad = useCallback(
     (content: string, loadedFilename: string) => {
@@ -189,6 +192,22 @@ export const NanoVNASWRAnalyser: React.FC<NanoVNASWRAnalyserProps> = ({
                 >
                   📊 Full Range
                 </button>
+                <button
+                  onClick={() => setShowBandPlanOverlay(!showBandPlanOverlay)}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: showBandPlanOverlay ? '#10b981' : '#ffffff',
+                    color: showBandPlanOverlay ? '#ffffff' : '#374151',
+                    border: '2px solid #10b981',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  📡 Band Plan
+                </button>
               </div>
 
               {bandData.length > 0 && (
@@ -275,6 +294,7 @@ export const NanoVNASWRAnalyser: React.FC<NanoVNASWRAnalyserProps> = ({
                 <SWRChart
                   key={band.band.name}
                   bandData={band}
+                  showBandPlan={showBandPlanOverlay}
                   height={chartHeight}
                 />
               ))}

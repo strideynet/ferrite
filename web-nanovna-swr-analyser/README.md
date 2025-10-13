@@ -6,10 +6,11 @@ A lightweight web component for analyzing NanoVNA S-parameter files and generati
 
 - 📊 **Multi-Band Analysis** - Automatically detects and displays SWR for all amateur bands in your sweep data
 - 📉 **Full Range View** - View the entire frequency sweep in a single chart with band highlighting
+- 📡 **RSGB Band Plans** - Display band plan segments (CW, Digital, SSB) based on RSGB allocations
 - 📁 **File Format Support** - Supports S1P and S2P Touchstone formats (RI, MA, DB formats)
-- 🎯 **Interactive Charts** - Beautiful, interactive charts with hover tooltips showing exact SWR values
+- 🎯 **Interactive Charts** - Beautiful, interactive charts with hover tooltips showing frequency and SWR
 - 📈 **Band Statistics** - Shows min, max, and average SWR for each band with quality assessment
-- 🎨 **Customizable Display** - Select which bands to display, toggle full range view, adjust chart heights
+- 🎨 **Customizable Display** - Select which bands to display, toggle full range view and band plans
 - 📦 **Easy Integration** - Simple to embed into any website with minimal setup
 
 ## Quick Start
@@ -82,6 +83,7 @@ pnpm build:lib
 | `bands` | `Band[]` | Amateur bands | Array of frequency bands to detect |
 | `showAllBands` | `boolean` | `false` | Whether to show all bands initially |
 | `showFullRange` | `boolean` | `true` | Whether to show the full range chart by default |
+| `showBandPlan` | `boolean` | `false` | Whether to show RSGB band plan overlays |
 | `chartHeight` | `number` | `300` | Height of each chart in pixels |
 | `onDataLoaded` | `function` | - | Callback when data is loaded and analyzed |
 | `style` | `CSSProperties` | `{}` | Custom styles for the container |
