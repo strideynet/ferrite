@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoVNA SWR Analyser - Standalone Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+        }
+
+        .info-section {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .info-section h2 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .info-section p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .analyser-wrapper {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .example-section {
+            margin: 40px 0;
+        }
+
+        .example-title {
+            background: #3b82f6;
+            color: white;
+            padding: 15px 30px;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .feature-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NanoVNA SWR Analyser</h1>
+            <p class="subtitle">Web-based S-Parameter Analysis for Amateur Radio</p>
+        </header>
+
+        <div class="info-section">
+            <h2>About This Component</h2>
+            <p>
+                This is a standalone web component that analyzes S-parameter files (S1P/S2P) from NanoVNA
+                and similar RF analyzers. It automatically detects amateur radio bands within your sweep
+                data and generates SWR (Standing Wave Ratio) graphs for each band.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>📊 Multi-Band Analysis</h3>
+                    <p>Automatically detects and displays SWR for all amateur bands in your data</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📁 File Format Support</h3>
+                    <p>Supports both S1P and S2P Touchstone formats with various data representations</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Interactive Charts</h3>
+                    <p>Hover over charts to see exact SWR values and quality indicators</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📈 Statistics</h3>
+                    <p>Shows min, max, and average SWR for each band with quality assessment</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>How to Embed</h2>
+            <p>This component can be easily embedded into any static website. Here are two methods:</p>
+
+            <h3>Method 1: Auto-mount with data attributes</h3>
+            <div class="code-block">
+&lt;!-- Include the built library --&gt;
+&lt;script src="nanovna-swr-analyser.js"&gt;&lt;/script&gt;
+
+&lt;!-- Create a div with auto-mount attribute --&gt;
+&lt;div id="swr-analyser"
+     data-nanovna-swr-auto-mount
+     data-show-all-bands="false"
+     data-chart-height="350"&gt;
+&lt;/div&gt;
+            </div>
+
+            <h3>Method 2: Manual mounting with JavaScript</h3>
+            <div class="code-block">
+&lt;!-- Include the built library --&gt;
+&lt;script src="nanovna-swr-analyser.js"&gt;&lt;/script&gt;
+
+&lt;!-- Create a container div --&gt;
+&lt;div id="my-analyser"&gt;&lt;/div&gt;
+
+&lt;!-- Mount the component --&gt;
+&lt;script&gt;
+  window.NanoVNASWRAnalyser.mount('my-analyser', {
+    showAllBands: false,
+    chartHeight: 350,
+    onDataLoaded: function(data) {
+      console.log('Bands found:', data);
+    }
+  });
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="example-section">
+            <div class="analyser-wrapper">
+                <h2 class="example-title">Try It Out - Upload Your S-Parameter File</h2>
+                <!-- Auto-mount analyser -->
+                <div id="analyser-demo"
+                     data-nanovna-swr-auto-mount
+                     data-show-all-bands="false"
+                     data-chart-height="350">
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Supported Amateur Bands</h2>
+            <p>The component automatically detects the following amateur radio bands:</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>HF Bands</h3>
+                    <p>160m, 80m, 40m, 30m, 20m, 17m, 15m, 12m, 10m</p>
+                </div>
+                <div class="feature-card">
+                    <h3>VHF/UHF Bands</h3>
+                    <p>6m (50 MHz), 2m (144 MHz), 70cm (420-450 MHz)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>SWR Quality Guidelines</h2>
+            <div class="features-grid">
+                <div class="feature-card" style="border-color: #10b981;">
+                    <h3 style="color: #10b981;">Excellent (≤ 1.5:1)</h3>
+                    <p>Ideal match with minimal power loss</p>
+                </div>
+                <div class="feature-card" style="border-color: #3b82f6;">
+                    <h3 style="color: #3b82f6;">Good (≤ 2.0:1)</h3>
+                    <p>Acceptable for most applications</p>
+                </div>
+                <div class="feature-card" style="border-color: #f59e0b;">
+                    <h3 style="color: #f59e0b;">Fair (≤ 3.0:1)</h3>
+                    <p>Some power loss, tuning recommended</p>
+                </div>
+                <div class="feature-card" style="border-color: #ef4444;">
+                    <h3 style="color: #ef4444;">Poor (> 3.0:1)</h3>
+                    <p>Significant power loss, tuning required</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the component script -->
+    <script type="module" src="/src/index.tsx"></script>
+</body>
+</html>
